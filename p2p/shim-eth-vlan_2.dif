@@ -1,0 +1,6 @@
+{
+    "difType" : "shim-eth-vlan_2",
+    "configParameters" : {
+    	"interface-name" : "eth2"
+      }
+}

@@ -1,0 +1,6 @@
+{
+    "difType" : "shim-eth-vlan_3",
+    "configParameters" : {
+    	"interface-name" : "eth3"
+      }
+}
