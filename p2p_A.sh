@@ -1,7 +1,6 @@
 #!/bin/sh
 # point-to-point || Server A
 # eth1 -> Server B
-PATH= "/usr/local/irati"
 
 
 ip link add link eth1 name eth1.100 type vlan id 100
@@ -12,4 +11,4 @@ modprobe shim-eth-vlan
 modprobe rina-default-plugin
 modprobe normal-ipcp
 
-$PATH/bin/ipcm -c ./p2p/ipcmanager_A.conf
+/usr/local/irati/bin/ipcm -c ./p2p/ipcmanager_A.conf
