@@ -11,4 +11,4 @@ modprobe shim-eth-vlan
 modprobe rina-default-plugin
 modprobe normal-ipcp
 
-/usr/local/irati/bin/ipcm -c ./p2pd/ipcmanager_B.conf
+/usr/local/irati/bin/ipcm -c ./p2pd/ipcmanager_B.conf &
