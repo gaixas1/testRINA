@@ -1,5 +1,5 @@
 {
-    "difType" : "normal-ipc",
+    "difType" : "normal-ipcp",
     "dataTransferConstants" : {
     	"addressLength" : 2,
     	"cepIdLength" : 2,
