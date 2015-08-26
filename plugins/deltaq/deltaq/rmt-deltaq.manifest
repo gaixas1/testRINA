@@ -1,0 +1,11 @@
+{
+        "PluginName": "rmt-deltaq",
+        "PluginVersion": "1",
+        "PolicySets" : [
+                {
+                        "Name": "deltaq",
+                        "Component": "rmt",
+                        "Version" : "1"
+                }
+        ]
+}
