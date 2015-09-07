@@ -1,0 +1,11 @@
+{
+        "PluginName": "pff-avl",
+        "PluginVersion": "1",
+        "PolicySets" : [
+                {
+                        "Name": "avl",
+                        "Component": "pff",
+                        "Version" : "1"
+                }
+        ]
+}
