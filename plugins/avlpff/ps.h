@@ -49,7 +49,6 @@ struct pff_avl_qosNode {
 
 struct pff_avl_entry_container {
 	rwlock_t lock;
-	qos_id_t id;
 	struct avl_qosNode * QoSs;
 };
 
@@ -57,6 +56,13 @@ typedef struct pff_avl_portNode* t_portNode;
 typedef struct pff_avl_qosNode* t_qosNode;
 typedef struct pff_avl_entry_container* t_entry;
 
+t_entry getNewEntry();
+t_qosNode getNewQoSNode(qos_id_t id);
+t_portNode getNewPortNode(t_portNode id);
+
+void freeEntry(t_entry o);
+void freeQoSNode(t_qosNode o);
+void freePortNode(t_qosNode o);
 
 int pff_avl_add (
 		struct pff_ps * ps,
@@ -85,6 +91,7 @@ int  pff_avl_nhop (
 int  pff_avl_dump (
 		struct pff_ps *    ps,
 		struct list_head * entries);
+
 
 
 static int pff_avl_ps_set_policy_set_param(

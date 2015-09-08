@@ -238,12 +238,18 @@ int  pff_avl_nhop (
 
 	t_entry  n = avl_search(priv->tableroot, (avl_kt) pci->destination);
 
+	/* read lock entry */
+	read_lock(&n->lock);
+
+	/*** check if lock priv -> lock entry -> unlock priv -> unlock entry
+	 *   solves problem read entry -> !!entry removed -> lock entry
+	 *   or creates deadlock
+	 ***/
+
 	/* unlock read priv */
 	read_unlock(&priv->lock);
 
 	if(n) {
-		/* read lock entry */
-		read_lock(&n->lock);
 
 		t_qosNode qos;
 		for(qos = n->QoSs; qos; qos = qos->next) {
@@ -338,4 +344,37 @@ static void pff_avl_ps_default_destroy(struct ps_base * bps)
 }
 
 
+t_entry getNewEntry() {
+	t_entry ret = (t_entry) kmalloc(sizeof(*t_entry), GFP_KERNEL);
+    rwlock_init(&ret->lock);
+	ret->QoSs = NULL;
+	return ret;
+}
+
+t_qosNode getNewQoSNode(qos_id_t id) {
+	t_qosNode ret = (t_qosNode) kmalloc(sizeof(*t_qosNode), GFP_KERNEL);
+	ret->id = id;
+	ret->next = NULL;
+	ret->ports = NULL;
+	return ret;
+}
+
+t_portNode getNewPortNode(t_portNode id) {
+	t_portNode ret = (t_portNode) kmalloc(sizeof(*t_portNode), GFP_KERNEL);
+	ret->id = id;
+	ret->next = NULL;
+	return ret;
+}
+
+void freeEntry(t_entry o) {
+	kfree(o);
+}
+
+void freeQoSNode(t_qosNode o) {
+	kfree(o);
+}
+
+void freePortNode(t_qosNode o) {
+	kfree(o);
+}
 
