@@ -238,9 +238,10 @@ int  pff_avl_nhop (
 
 	t_entry  n = avl_search(priv->tableroot, (avl_kt) pci->destination);
 
-	/* read lock entry */
-	read_lock(&n->lock);
-
+	if(n) {
+		/* read lock entry */
+		read_lock(&n->lock);
+	}
 	/*** check if lock priv -> lock entry -> unlock priv -> unlock entry
 	 *   solves problem read entry -> !!entry removed -> lock entry
 	 *   or creates deadlock
