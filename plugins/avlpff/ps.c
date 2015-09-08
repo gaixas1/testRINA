@@ -23,19 +23,33 @@
 int pff_avl_add (
 		struct pff_ps * ps,
 		struct mod_pff_entry * entry) {
+
 	t_priv priv = (t_priv) ps->priv;
+
 	/* read lock priv */
+	read_lock(&priv->lock);
+
 	t_entry  n = avl_search(priv->tableroot, (avl_kt) entry->fwd_info);
+
 	/* unlock read priv */
+	read_unlock(&priv->lock);
+
 	if(!n) {
 		n = getNewEntry();
 		if(!n) {return -1; }
+
 		/* insert lock priv */
+		write_lock(&priv->lock);
+
 		priv->tableroot = avl_insert(priv->tableroot, (avl_kt) entry->fwd_info, n);
+
 		/* unlock insert priv*/
+		write_unlock(&priv->lock);
 	}
 
 	/* insert lock entry */
+	write_lock(&n->lock);
+
 	t_qosNode qos;
 	for(qos = n->QoSs; qos; qos = qos->next) {
 		if(qos->id == entry->qos_id) { break; }
@@ -62,6 +76,7 @@ int pff_avl_add (
 		}
 	}
 	/* unlock insert entry */
+	write_unlock(&n->lock);
 
 	return 0;
 }
@@ -71,12 +86,20 @@ int pff_avl_remove (
 		struct mod_pff_entry * entry) {
 
 	t_priv priv = (t_priv) ps->priv;
+
 	/* read lock priv */
+	read_lock(&priv->lock);
+
 	t_entry  n = avl_search(priv->tableroot, (avl_kt) entry->fwd_info);
+
 	/* unlock read priv */
+	read_unlock(&priv->lock);
+
 	if(!n) { return 0; }
 
 	/* insert lock entry */
+	write_lock(&n->lock);
+
 	t_qosNode qos;
 	for(qos = n->QoSs; qos; qos = qos->next) {
 		if(qos->id == entry->qos_id) { break; }
@@ -118,11 +141,17 @@ int pff_avl_remove (
 	}
 
 	/* unlock insert entry */
+	write_unlock(&n->lock);
 
 	if(!n->QoSs) {
 		/* insert lock priv */
+		write_unlock(&priv->lock);
+
 		priv->tableroot = avl_remove(priv->tableroot, (avl_kt) entry->fwd_info);
+
 		/* unlock insert priv*/
+		write_unlock(&priv->lock);
+
 		freeEntry(n);
 	}
 
@@ -136,6 +165,8 @@ int pff_avl_port_state_change (
 	t_priv priv = (t_priv) ps->priv;
 
 	/* write lock privports */
+	write_lock(&priv->lockPorts);
+
 	for(t_portNode sport = priv->downPorts; sport; sport = sport->next) {
 		if(sport->id == port_id) { port = sport; break; }
 	}
@@ -168,15 +199,24 @@ int pff_avl_port_state_change (
 		}
 	}
 	/* unlock write privports */
+	write_unlock(&priv->lockPorts);
+
 	return 0;
 }
 
 bool pff_avl_is_empty (
 		struct pff_ps * ps) {
+
 	t_priv priv = (t_priv) ps->priv;
 	/* read lock priv */
-	return (priv->tableroot != NULL);
+	read_lock(&priv->lock);
+
+	bool ret = (priv->tableroot != NULL);
+
 	/* unlock read priv */
+	read_unlock(&priv->lock);
+
+	return ret;
 }
 
 int  pff_avl_flush(
@@ -192,12 +232,19 @@ int  pff_avl_nhop (
 		size_t *        count) {
 
 	t_priv priv = (t_priv) ps->priv;
+
 	/* read lock priv */
+	read_lock(&priv->lock);
+
 	t_entry  n = avl_search(priv->tableroot, (avl_kt) pci->destination);
+
 	/* unlock read priv */
+	read_unlock(&priv->lock);
 
 	if(n) {
 		/* read lock entry */
+		read_lock(&n->lock);
+
 		t_qosNode qos;
 		for(qos = n->QoSs; qos; qos = qos->next) {
 			if(qos->id == pci->connection_id->qos_id) { break; }
@@ -205,6 +252,8 @@ int  pff_avl_nhop (
 		if(qos) {
 			for(t_portNode port = qos->ports; port; port = port->next) {
 				/* read lock privports */
+				read_lock(&priv->lockPorts);
+
 				bool down = false;
 				for(t_portNode dport = priv->downPorts; dport; dport = dport->next) {
 					if(dport == port) {
@@ -217,10 +266,12 @@ int  pff_avl_nhop (
 				}
 
 				/* unlock read privports */
+				read_unlock(&priv->lockPorts);
 
 			}
 		}
-		/* read insert entry */
+		/* unlock read entry */
+		read_unlock(&n->lock);
 	}
 
 	return 0;
@@ -245,7 +296,7 @@ static struct ps_base * pff_avl_ps_default_create(
                 return NULL;
         }
 
-        spin_lock_init(&priv->lock);
+        rwlock_init(&priv->lock);
         priv->tableroot = NULL;
 
         ps->base.set_policy_set_param = pff_avl_ps_set_policy_set_param;
@@ -275,11 +326,11 @@ static void pff_avl_ps_default_destroy(struct ps_base * bps)
                         return;
                 }
 
-                spin_lock(&priv->lock);
+                write_lock(&priv->lock);
 
-                __pft_flush(priv);
+                	/*Do deletion*/
 
-                spin_unlock(&priv->lock);
+                write_unlock(&priv->lock);
 
                 rkfree(priv);
                 rkfree(ps);

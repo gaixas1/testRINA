@@ -29,8 +29,8 @@
 
 
 struct pff_avl_ps_priv {
-		spinlock_t      lock;
-		spinlock_t      lockPorts;
+	rwlock_t      lock;
+	rwlock_t      lockPorts;
         avl_n 			tableroot;
         t_portNode		downPorts;
 };
@@ -48,7 +48,7 @@ struct pff_avl_qosNode {
 };
 
 struct pff_avl_entry_container {
-    spinlock_t lock;
+	rwlock_t lock;
 	qos_id_t id;
 	struct avl_qosNode * QoSs;
 };
