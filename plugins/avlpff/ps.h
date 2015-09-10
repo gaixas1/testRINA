@@ -17,6 +17,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+#ifndef H_PS
+#define H_PS
 
 #include <linux/export.h>
 #include <linux/module.h>
@@ -110,6 +112,8 @@ struct ps_factory pff_factory = {
         .create  = pff_avl_ps_default_create,
         .destroy = pff_avl_ps_default_destroy,
 };
+
+#endif
 
 
 

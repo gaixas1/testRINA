@@ -25,6 +25,7 @@ int pff_avl_add (
 		struct mod_pff_entry * entry) {
 
 	t_priv priv = (t_priv) ps->priv;
+	if (!priv) { return -1; }
 
 	/* read lock priv */
 	read_lock(&priv->lock);
@@ -86,6 +87,7 @@ int pff_avl_remove (
 		struct mod_pff_entry * entry) {
 
 	t_priv priv = (t_priv) ps->priv;
+	if (!priv) { return -1; }
 
 	/* read lock priv */
 	read_lock(&priv->lock);
@@ -105,6 +107,7 @@ int pff_avl_remove (
 		if(qos->id == entry->qos_id) { break; }
 	}
 	if(!qos) { return 0; }
+
 
 	/* foreach portid : entry->port_id_altlists */
 	{
@@ -163,6 +166,7 @@ int pff_avl_port_state_change (
 		port_id_t port_id, bool up) {
 
 	t_priv priv = (t_priv) ps->priv;
+	if (!priv) { return -1; }
 
 	/* write lock privports */
 	write_lock(&priv->lockPorts);
@@ -208,6 +212,7 @@ bool pff_avl_is_empty (
 		struct pff_ps * ps) {
 
 	t_priv priv = (t_priv) ps->priv;
+	if (!priv) { return -1; }
 	/* read lock priv */
 	read_lock(&priv->lock);
 
@@ -232,6 +237,7 @@ int  pff_avl_nhop (
 		size_t *        count) {
 
 	t_priv priv = (t_priv) ps->priv;
+	if (!priv) { return -1; }
 
 	/* read lock priv */
 	read_lock(&priv->lock);
@@ -321,8 +327,7 @@ static struct ps_base * pff_avl_ps_default_create(
         return &ps->base;
 }
 
-static void pff_avl_ps_default_destroy(struct ps_base * bps)
-{
+static void pff_avl_ps_default_destroy(struct ps_base * bps) {
         struct pff_ps * ps = container_of(bps, struct pff_ps, base);
 
         if (bps) {
